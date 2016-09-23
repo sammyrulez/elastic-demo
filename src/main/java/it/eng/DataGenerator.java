@@ -1,24 +1,36 @@
 package it.eng;
 
-import org.elasticsearch.action.index.IndexResponse;
+import org.apache.commons.io.IOUtils;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Stack;
+import java.util.List;
+import java.util.Random;
 
 import com.fasterxml.jackson.databind.*;
 
 /**
  * Created by sam on 23/09/16.
  */
-public class App {
+public class DataGenerator {
 
+
+    private static List<String> nomi;
+
+    private static List<String> cognomi;
+
+    private static List<String> indirizzi;
 
 
     public static void main(String[] args) throws Exception {
+
+        cognomi = loadList("cognomi_italiani.txt");
+        nomi = loadList("nomi_italiani.txt");
+        indirizzi = loadList("vie_italiane.txt");
 
         Settings settings = Settings.settingsBuilder()
                 .put("cluster.name", "demo").build();
@@ -31,10 +43,11 @@ public class App {
 
         ArrayList<Thread> tList = new ArrayList<Thread>();
 
-        for (int i = 0; i < numOfP ; i++){
+        for (int i = 0; i < numOfP; i++) {
 
             final Person p = generatePerson();
-            final PersonWriter pw = new PersonWriter(client,p);
+            System.out.println(" indexing " + i + " " + p.toString());
+            final PersonWriter pw = new PersonWriter(client, p);
             final Thread t = new Thread(pw);
             t.run();
             tList.add(t);
@@ -42,16 +55,26 @@ public class App {
         }
 
 
-        for(Thread t:tList){
+        for (Thread t : tList) {
             t.join();
+            System.out.println(t.getId() + " joined ");
         }
 
 
         client.close();
     }
 
+    private static List loadList(String fileName) throws IOException {
+        return IOUtils.readLines(DataGenerator.class.getResourceAsStream("/" + fileName), "UTF-8");
+    }
+
+    private static String pickFromList(List<String> data){
+        final Random random = new Random();
+        return data.get(random.nextInt(data.size()-1));
+    }
+
     private static Person generatePerson() {
-        return null;
+        return new Person(pickFromList(nomi), pickFromList(cognomi), pickFromList(indirizzi));
     }
 
 }
