@@ -6,6 +6,9 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Stack;
+
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -24,18 +27,31 @@ public class App {
 
         ObjectMapper mapper = new ObjectMapper(); // create once, reuse
 
-// generate json
-        byte[] json = mapper.writeValueAsBytes(new Person("sam","rgh"," vai da qui"));
-        System.out.println(new String(json));
-        IndexResponse response = client.prepareIndex("people", "person")
-                .setSource(json)
-                .get();
+        Integer numOfP = Integer.parseInt(args[0]);
 
-        System.out.println(response.isCreated() +  " " + response.getIndex());
+        ArrayList<Thread> tList = new ArrayList<Thread>();
 
+        for (int i = 0; i < numOfP ; i++){
+
+            final Person p = generatePerson();
+            final PersonWriter pw = new PersonWriter(client,p);
+            final Thread t = new Thread(pw);
+            t.run();
+            tList.add(t);
+
+        }
+
+
+        for(Thread t:tList){
+            t.join();
+        }
 
 
         client.close();
+    }
+
+    private static Person generatePerson() {
+        return null;
     }
 
 }
