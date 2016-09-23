@@ -2,6 +2,7 @@ package it.eng;
 
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 import java.net.InetAddress;
@@ -15,8 +16,11 @@ public class App {
 
 
     public static void main(String[] args) throws Exception {
-        TransportClient client = TransportClient.builder().build()
-                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
+
+        Settings settings = Settings.settingsBuilder()
+                .put("cluster.name", "demo").build();
+        TransportClient client = TransportClient.builder().settings(settings).build()
+                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.27.41"), 9300));
 
         ObjectMapper mapper = new ObjectMapper(); // create once, reuse
 
