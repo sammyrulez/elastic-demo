@@ -18,10 +18,14 @@ public class PersonWriter implements Runnable {
     final ObjectMapper mapper = new ObjectMapper();
 
     private boolean runned = false;
+    private String index;
+    private String type;
 
-    public PersonWriter(TransportClient client, Person person) {
+    public PersonWriter(TransportClient client, Person person, String index, String type) {
         this.client = client;
         this.person = person;
+        this.index = index;
+        this.type = type;
     }
 
     public void run() {
@@ -29,7 +33,8 @@ public class PersonWriter implements Runnable {
 
             try {
                 final byte[] json = mapper.writeValueAsBytes(person);
-                IndexResponse response = client.prepareIndex("people", "person")
+
+                IndexResponse response = client.prepareIndex(index, type)
                         .setSource(json)
                         .get();
                 if(!response.isCreated()){

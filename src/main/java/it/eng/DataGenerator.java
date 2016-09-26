@@ -47,7 +47,7 @@ public class DataGenerator {
 
             final Person p = generatePerson();
             System.out.println(" indexing " + i + " " + p.toString());
-            final PersonWriter pw = new PersonWriter(client, p);
+            final PersonWriter pw = new PersonWriter(client, p,"people","person");
             final Thread t = new Thread(pw);
             t.run();
             tList.add(t);
